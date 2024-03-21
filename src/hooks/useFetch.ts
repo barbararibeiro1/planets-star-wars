@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const useFetch = (url: string) => {
-  const [data, setData] = useState([]);
+function useFetch<T>(url: string): { data: T | null; loading: boolean; error: any } {
+  const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +15,8 @@ const useFetch = (url: string) => {
           const { residents, ...rest } = item;
           return rest;
         });
-        setData(dataWithoutResidents);
+
+        setData(dataWithoutResidents as T);
       } catch (fetchError) {
         if (fetchError instanceof Error) {
           setError(fetchError.toString());
@@ -31,6 +32,6 @@ const useFetch = (url: string) => {
   }, [url]);
 
   return { data, loading, error };
-};
+}
 
 export default useFetch;
