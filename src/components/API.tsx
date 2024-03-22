@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useFetch from '../hooks/useFetch';
 import Table from './Table';
 import { PlanetProps as Planet, PlanetKey } from '../types/types';
@@ -29,12 +29,20 @@ function RequisitionApi() {
     setValue(event.target.value);
   };
 
+  useEffect(() => {
+    if (data) {
+      const newData = data.filter((planet) => {
+        return planet.name.toLowerCase().includes(filterText.toLowerCase());
+      });
+      setFilteredData(newData);
+    }
+  }, [filterText, data]);
+
   const handleFilterClick = () => {
     if (data) {
       const newData = data.filter((planet) => {
-        const textMatches = planet.name.toLowerCase().includes(filterText.toLowerCase());
         const numberMatches = compareNumbers(planet[column], comparison, value);
-        return textMatches && numberMatches;
+        return numberMatches;
       });
       setFilteredData(newData);
     }
