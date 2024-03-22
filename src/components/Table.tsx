@@ -1,18 +1,4 @@
-export type PlanetProps = {
-  name: string,
-  rotation_period: string,
-  orbital_period: string,
-  diameter: string,
-  climate: string,
-  gravity: string,
-  terrain: string,
-  surface_water: string,
-  population: string,
-  films: string [],
-  created: string,
-  edited: string,
-  url: string
-};
+import { PlanetProps } from '../types/types';
 
 function Table({ planets }: { planets: PlanetProps[] }) {
   return (
@@ -47,7 +33,7 @@ function Table({ planets }: { planets: PlanetProps[] }) {
               <td>{planet.terrain}</td>
               <td>{planet.surface_water}</td>
               <td>{planet.population}</td>
-              <td>{planet.films}</td>
+              <td>{planet.films.join(', ')}</td>
               <td>{planet.created}</td>
               <td>{planet.edited}</td>
               <td>{planet.url}</td>
