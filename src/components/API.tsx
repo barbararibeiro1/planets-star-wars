@@ -71,6 +71,7 @@ function RequisitionApi() {
         value={ filterText }
         onChange={ handleFilterChange }
         data-testid="name-filter"
+        placeholder="Pesquisar por nome"
       />
       <select
         value={ column }
