@@ -12,6 +12,8 @@ function RequisitionApi() {
   const [comparison, setComparison] = useState('maior que');
   const [value, setValue] = useState('0');
   const [filteredData, setFilteredData] = useState<Planet[] | null>(null);
+  const [numericFilters, setNumericFilters] = useState<Array<{
+    column: PlanetKey, comparison: string, value: string }>>([]);
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterText(event.target.value);
@@ -38,15 +40,27 @@ function RequisitionApi() {
     }
   }, [filterText, data]);
 
-  const handleFilterClick = () => {
+  const handleAddFilter = () => {
+    const newFilters = [...numericFilters, { column, comparison, value }];
+    setNumericFilters(newFilters);
+    setColumn('population');
+    setComparison('maior que');
+    setValue('0');
+  };
+
+  useEffect(() => {
     if (data) {
-      const newData = data.filter((planet) => {
-        const numberMatches = compareNumbers(planet[column], comparison, value);
-        return numberMatches;
+      let newData = [...data];
+
+      numericFilters.forEach((filter) => {
+        newData = newData.filter((planet) => {
+          return compareNumbers(planet[filter.column], filter.comparison, filter.value);
+        });
       });
+
       setFilteredData(newData);
     }
-  };
+  }, [numericFilters, data]);
 
   if (error) return <p>{error}</p>;
 
@@ -86,10 +100,17 @@ function RequisitionApi() {
       />
       <button
         data-testid="button-filter"
-        onClick={ handleFilterClick }
+        onClick={ handleAddFilter }
       >
         Filtrar
       </button>
+      {numericFilters.map((filter, index) => (
+        <p key={ index }>
+          { filter.column }
+          { filter.comparison }
+          { filter.value }
+        </p>
+      ))}
       {loading ? (
         <p>Loading...</p>
       ) : (
