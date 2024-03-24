@@ -53,6 +53,17 @@ function RequisitionApi() {
     setValue('0');
   };
 
+  const handleRemoveFilter = (indexToRemove: number) => {
+    const columnToFree = numericFilters[indexToRemove].column;
+    setUsedColumns(usedColumns.filter(column => column !== columnToFree));
+    setNumericFilters(numericFilters.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleRemoveAllFilters = () => {
+    setNumericFilters([]);
+    setUsedColumns([]);
+  };
+  
   useEffect(() => {
     if (data) {
       let newData = [...data];
@@ -109,12 +120,22 @@ function RequisitionApi() {
       >
         Filtrar
       </button>
+      <button
+        onClick={ handleRemoveAllFilters } 
+        data-testid='button-remove-filters'
+      >
+        Remover todas filtragens
+      </button>
+
       {numericFilters.map((filter, index) => (
-        <p key={ index }>
-          { filter.column }
-          { filter.comparison }
-          { filter.value }
-        </p>
+        <div key={ index } data-testid='filter'>
+          <p >
+            { filter.column }
+            { filter.comparison }
+            { filter.value }
+          </p>
+          <button onClick={ () => handleRemoveFilter(index) }>X</button>
+        </div>
       ))}
       {loading ? (
         <p>Loading...</p>
