@@ -18,6 +18,7 @@ function RequisitionApi() {
   const [numericFilters, setNumericFilters] = useState<Array<{
     column: PlanetKey, comparison: string, value: string }>>([]);
   const [usedColumns, setUsedColumns] = useState<string[]>([]);
+  const [sort, setSort] = useState({ column: 'population', order: 'ASC' });
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterText(event.target.value);
@@ -35,14 +36,18 @@ function RequisitionApi() {
     setValue(event.target.value);
   };
 
+  function applyTextFilter(planetsData: Planet[], textFilter: string) {
+    return planetsData.filter((planet) => planet.name.includes(textFilter));
+  }
+
   useEffect(() => {
     if (data) {
-      const newData = data.filter((planet) => {
-        return planet.name.toLowerCase().includes(filterText.toLowerCase());
-      });
+      let newData = applyNumericFilters(data, numericFilters);
+      newData = applyTextFilter(newData, filterText);
+      newData = sortData(newData, sort);
       setFilteredData(newData);
     }
-  }, [filterText, data]);
+  }, [numericFilters, data, sort, filterText]);
 
   const handleAddFilter = () => {
     const newFilters = [...numericFilters, { column, comparison, value }];
@@ -66,17 +71,46 @@ function RequisitionApi() {
 
   useEffect(() => {
     if (data) {
-      let newData = [...data];
-
-      numericFilters.forEach((filter) => {
-        newData = newData.filter((planet) => {
-          return compareNumbers(planet[filter.column], filter.comparison, filter.value);
-        });
-      });
-
+      let newData = applyNumericFilters(data, numericFilters);
+      newData = sortData(newData, sort);
       setFilteredData(newData);
     }
-  }, [numericFilters, data]);
+  }, [numericFilters, data, sort]);
+
+  function applyNumericFilters(planetsData: Planet[], filters: any[]) {
+    let dataFiltered = [...planetsData];
+
+    filters.forEach((filter) => {
+      dataFiltered = dataFiltered.filter((planet) => {
+        return compareNumbers(planet[filter.column], filter.comparison, filter.value);
+      });
+    });
+
+    return dataFiltered;
+  }
+
+  function calculateValue(columnValue: string, order: string) {
+    let result;
+    if (columnValue === 'unknown') {
+      if (order === 'ASC') {
+        result = Infinity;
+      } else {
+        result = -Infinity;
+      }
+    } else {
+      result = Number(columnValue);
+    }
+    return result;
+  }
+
+  function sortData(dataToSort: Planet[], sortOption: any) {
+    return dataToSort.sort((a, b) => {
+      const first = calculateValue(a[sortOption.column], sortOption.order);
+      const second = calculateValue(b[sortOption.column], sortOption.order);
+
+      return sortOption.order === 'ASC' ? first - second : second - first;
+    });
+  }
 
   if (error) return <p>{error}</p>;
 
@@ -126,8 +160,48 @@ function RequisitionApi() {
       >
         Remover todas filtragens
       </button>
+      <select
+        data-testid="column-sort"
+        value={ sort.column }
+        onChange={ ({ target }) => setSort({ ...sort, column: target.value }) }
+      >
+        { COLUMNS.map((col) => (
+          <option key={ col } value={ col }>
+            { col }
+          </option>
+        )) }
+      </select>
 
-      {numericFilters.map((filter, index) => (
+      <label htmlFor="asc">
+        Ascendente
+        <input
+          type="radio"
+          id="asc"
+          data-testid="column-sort-input-asc"
+          value="ASC"
+          checked={ sort.order === 'ASC' }
+          onChange={ ({ target }) => setSort({ ...sort, order: target.value }) }
+        />
+      </label>
+      <label htmlFor="desc">
+        Descendente
+        <input
+          type="radio"
+          id="desc"
+          data-testid="column-sort-input-desc"
+          value="DESC"
+          checked={ sort.order === 'DESC' }
+          onChange={ ({ target }) => setSort({ ...sort, order: target.value }) }
+        />
+      </label>
+
+      <button
+        data-testid="column-sort-button"
+      >
+        Ordenar
+      </button>
+
+      { numericFilters.map((filter, index) => (
         <div key={ index } data-testid="filter">
           <p>
             { filter.column }
@@ -136,7 +210,7 @@ function RequisitionApi() {
           </p>
           <button onClick={ () => handleRemoveFilter(index) }>X</button>
         </div>
-      ))}
+      )) }
       {loading ? (
         <p>Loading...</p>
       ) : (
