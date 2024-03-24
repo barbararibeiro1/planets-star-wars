@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import RequisitionApi from '../components/API'
+import RequisitionApi, { compareNumbers, sortData, calculateValue } from '../components/API'
 import Table from '../components/Table';
 
 const mockData = [
@@ -119,5 +119,81 @@ describe('Table', () => {
 
     const planetPopulationCell = screen.getByText('200000');
     expect(planetPopulationCell).toBeInTheDocument();
+  });
+});
+
+describe('compareNumbers', () => {
+  it('returns true when any argument is missing', () => {
+    expect(compareNumbers('', 'maior que', '10')).toBe(true);
+    expect(compareNumbers('20', '', '10')).toBe(true);
+    expect(compareNumbers('20', 'maior que', '')).toBe(true);
+  });
+
+  it('returns correct result for "maior que" comparison', () => {
+    expect(compareNumbers('20', 'maior que', '10')).toBe(true);
+    expect(compareNumbers('10', 'maior que', '20')).toBe(false);
+  });
+
+  it('returns correct result for "menor que" comparison', () => {
+    expect(compareNumbers('10', 'menor que', '20')).toBe(true);
+    expect(compareNumbers('20', 'menor que', '10')).toBe(false);
+  });
+
+  it('returns correct result for "igual a" comparison', () => {
+    expect(compareNumbers('10', 'igual a', '10')).toBe(true);
+    expect(compareNumbers('20', 'igual a', '10')).toBe(false);
+  });
+
+  it('returns true for unknown comparison', () => {
+    expect(compareNumbers('10', 'desconhecido', '10')).toBe(true);
+  });
+});
+
+describe('sortData', () => {
+  it('correctly sorts data in ascending order', () => {
+    const data = [
+      { name: 'Terra', diameter: '12742' },
+      { name: 'Marte', diameter: '6779' },
+      { name: 'Júpiter', diameter: '139820' },
+    ];
+    const sortOption = { column: 'diameter', order: 'ASC' };
+
+    const sortedData = sortData(data, sortOption);
+
+    expect(sortedData[0].name).toBe('Marte');
+    expect(sortedData[1].name).toBe('Terra');
+    expect(sortedData[2].name).toBe('Júpiter');
+  });
+
+  it('correctly sorts data in descending order', () => {
+    const data = [
+      { name: 'Terra', diameter: '12742' },
+      { name: 'Marte', diameter: '6779' },
+      { name: 'Júpiter', diameter: '139820' },
+    ];
+    const sortOption = { column: 'diameter', order: 'DESC' };
+
+    const sortedData = sortData(data, sortOption);
+
+    expect(sortedData[0].name).toBe('Júpiter');
+    expect(sortedData[1].name).toBe('Terra');
+    expect(sortedData[2].name).toBe('Marte');
+  });
+});
+
+describe('calculateValue', () => {
+  it('returns Infinity when columnValue is "unknown" and order is "ASC"', () => {
+    const result = calculateValue('unknown', 'ASC');
+    expect(result).toBe(Infinity);
+  });
+
+  it('returns -Infinity when columnValue is "unknown" and order is not "ASC"', () => {
+    const result = calculateValue('unknown', 'DESC');
+    expect(result).toBe(-Infinity);
+  });
+
+  it('returns the number representation of columnValue when columnValue is not "unknown"', () => {
+    const result = calculateValue('12345', 'ASC');
+    expect(result).toBe(12345);
   });
 });

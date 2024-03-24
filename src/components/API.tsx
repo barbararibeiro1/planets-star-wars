@@ -6,6 +6,59 @@ import { PlanetProps as Planet, PlanetKey } from '../types/types';
 const COLUMNS = ['population', 'orbital_period', 'diameter',
   'rotation_period', 'surface_water'] as const;
 
+export function sortData(dataToSort: Planet[], sortOption: any) {
+  return dataToSort.sort((a, b) => {
+    const first = calculateValue(a[sortOption.column], sortOption.order);
+    const second = calculateValue(b[sortOption.column], sortOption.order);
+
+    return sortOption.order === 'ASC' ? first - second : second - first;
+  });
+}
+
+export function calculateValue(columnValue: string, order: string) {
+  let result;
+  if (columnValue === 'unknown') {
+    if (order === 'ASC') {
+      result = Infinity;
+    } else {
+      result = -Infinity;
+    }
+  } else {
+    result = Number(columnValue);
+  }
+  return result;
+}
+
+function applyNumericFilters(planetsData: Planet[], filters: any[]) {
+  let dataFiltered = [...planetsData];
+
+  filters.forEach((filter) => {
+    dataFiltered = dataFiltered.filter((planet) => {
+      return compareNumbers(planet[filter.column], filter.comparison, filter.value);
+    });
+  });
+
+  return dataFiltered;
+}
+
+export function compareNumbers(planetValue: string, comparison: string, value: string) {
+  if (!planetValue || !comparison || !value) return true;
+
+  const numberValue = Number(value);
+  const numberPlanetValue = Number(planetValue);
+
+  switch (comparison) {
+    case 'maior que':
+      return numberPlanetValue > numberValue;
+    case 'menor que':
+      return numberPlanetValue < numberValue;
+    case 'igual a':
+      return numberPlanetValue === numberValue;
+    default:
+      return true;
+  }
+}
+
 function RequisitionApi() {
   const url = 'https://swapi.dev/api/planets';
   const { data, loading, error } = useFetch<Planet[]>(url);
@@ -76,41 +129,6 @@ function RequisitionApi() {
       setFilteredData(newData);
     }
   }, [numericFilters, data, sort]);
-
-  function applyNumericFilters(planetsData: Planet[], filters: any[]) {
-    let dataFiltered = [...planetsData];
-
-    filters.forEach((filter) => {
-      dataFiltered = dataFiltered.filter((planet) => {
-        return compareNumbers(planet[filter.column], filter.comparison, filter.value);
-      });
-    });
-
-    return dataFiltered;
-  }
-
-  function calculateValue(columnValue: string, order: string) {
-    let result;
-    if (columnValue === 'unknown') {
-      if (order === 'ASC') {
-        result = Infinity;
-      } else {
-        result = -Infinity;
-      }
-    } else {
-      result = Number(columnValue);
-    }
-    return result;
-  }
-
-  function sortData(dataToSort: Planet[], sortOption: any) {
-    return dataToSort.sort((a, b) => {
-      const first = calculateValue(a[sortOption.column], sortOption.order);
-      const second = calculateValue(b[sortOption.column], sortOption.order);
-
-      return sortOption.order === 'ASC' ? first - second : second - first;
-    });
-  }
 
   if (error) return <p>{error}</p>;
 
@@ -218,24 +236,6 @@ function RequisitionApi() {
       )}
     </div>
   );
-}
-
-function compareNumbers(planetValue: string, comparison: string, value: string) {
-  if (!planetValue || !comparison || !value) return true;
-
-  const numberValue = Number(value);
-  const numberPlanetValue = Number(planetValue);
-
-  switch (comparison) {
-    case 'maior que':
-      return numberPlanetValue > numberValue;
-    case 'menor que':
-      return numberPlanetValue < numberValue;
-    case 'igual a':
-      return numberPlanetValue === numberValue;
-    default:
-      return true;
-  }
 }
 
 export default RequisitionApi;
