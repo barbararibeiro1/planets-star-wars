@@ -100,8 +100,8 @@ describe('Testa a funcionalidade dos filtros', () => {
   });
 })
 
-describe('Table', () => {
-  test('renders correctly', () => {
+describe('Teste o componente Table', () => {
+  test('Verifica se os elementos são corretamente renderizados', () => {
     render(<Table planets={mockData} />);
 
     const headers = screen.getAllByRole('columnheader');
@@ -111,7 +111,7 @@ describe('Table', () => {
     expect(rows).toHaveLength(mockData.length + 1);
   });
 
-  test('renders planet data correctly', () => {
+  test('Verifica se dados dos planetas são renderizados corretamente', () => {
     render(<Table planets={mockData} />);
 
     const firstPlanetCell = screen.getByText('Tatooine');
@@ -122,35 +122,35 @@ describe('Table', () => {
   });
 });
 
-describe('compareNumbers', () => {
-  it('returns true when any argument is missing', () => {
+describe('Verifica a função compareNumbers', () => {
+  it('Retorna verdadeiro quando alguns argumento estiver faltando', () => {
     expect(compareNumbers('', 'maior que', '10')).toBe(true);
     expect(compareNumbers('20', '', '10')).toBe(true);
     expect(compareNumbers('20', 'maior que', '')).toBe(true);
   });
 
-  it('returns correct result for "maior que" comparison', () => {
+  it('Retorna o resultado correto para a comparação "maior que"', () => {
     expect(compareNumbers('20', 'maior que', '10')).toBe(true);
     expect(compareNumbers('10', 'maior que', '20')).toBe(false);
   });
 
-  it('returns correct result for "menor que" comparison', () => {
+  it('Retorna o resultado correto para a comparação "menor que"', () => {
     expect(compareNumbers('10', 'menor que', '20')).toBe(true);
     expect(compareNumbers('20', 'menor que', '10')).toBe(false);
   });
 
-  it('returns correct result for "igual a" comparison', () => {
+  it('Retorna o resultado correto para a comparação "igual a"', () => {
     expect(compareNumbers('10', 'igual a', '10')).toBe(true);
     expect(compareNumbers('20', 'igual a', '10')).toBe(false);
   });
 
-  it('returns true for unknown comparison', () => {
+  it('Retorna verdadeiro para comparações com valor desconhecido', () => {
     expect(compareNumbers('10', 'desconhecido', '10')).toBe(true);
   });
 });
 
-describe('sortData', () => {
-  it('correctly sorts data in ascending order', () => {
+describe('Testa a função sortData', () => {
+  it('Classifica corretamente os dados em ordem crescente', () => {
     const data = [
       { name: 'Terra', diameter: '12742' },
       { name: 'Marte', diameter: '6779' },
@@ -165,7 +165,7 @@ describe('sortData', () => {
     expect(sortedData[2].name).toBe('Júpiter');
   });
 
-  it('correctly sorts data in descending order', () => {
+  it('Classifica corretamente os dados em ordem decrescente', () => {
     const data = [
       { name: 'Terra', diameter: '12742' },
       { name: 'Marte', diameter: '6779' },
@@ -181,18 +181,18 @@ describe('sortData', () => {
   });
 });
 
-describe('calculateValue', () => {
-  it('returns Infinity when columnValue is "unknown" and order is "ASC"', () => {
+describe('Testa a função calculateValue', () => {
+  it('Retorna Infinity quando columnValue é "desconhecido" e o pedido é "ASC"', () => {
     const result = calculateValue('unknown', 'ASC');
     expect(result).toBe(Infinity);
   });
 
-  it('returns -Infinity when columnValue is "unknown" and order is not "ASC"', () => {
+  it('Retorna -Infinity quando columnValue é "desconhecido" e o pedido não é "ASC"', () => {
     const result = calculateValue('unknown', 'DESC');
     expect(result).toBe(-Infinity);
   });
 
-  it('returns the number representation of columnValue when columnValue is not "unknown"', () => {
+  it('Retorna a representação numérica de columnValue quando columnValue não é "desconhecido"', () => {
     const result = calculateValue('12345', 'ASC');
     expect(result).toBe(12345);
   });
