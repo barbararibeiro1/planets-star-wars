@@ -3,6 +3,9 @@ import useFetch from '../hooks/useFetch';
 import Table from './Table';
 import { PlanetProps as Planet, PlanetKey } from '../types/types';
 
+const COLUMNS = ['population', 'orbital_period', 'diameter',
+  'rotation_period', 'surface_water'] as const;
+
 function RequisitionApi() {
   const url = 'https://swapi.dev/api/planets';
   const { data, loading, error } = useFetch<Planet[]>(url);
@@ -14,6 +17,7 @@ function RequisitionApi() {
   const [filteredData, setFilteredData] = useState<Planet[] | null>(null);
   const [numericFilters, setNumericFilters] = useState<Array<{
     column: PlanetKey, comparison: string, value: string }>>([]);
+  const [usedColumns, setUsedColumns] = useState<string[]>([]);
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterText(event.target.value);
@@ -42,6 +46,7 @@ function RequisitionApi() {
 
   const handleAddFilter = () => {
     const newFilters = [...numericFilters, { column, comparison, value }];
+    setUsedColumns([...usedColumns, column]);
     setNumericFilters(newFilters);
     setColumn('population');
     setComparison('maior que');
@@ -78,11 +83,9 @@ function RequisitionApi() {
         data-testid="column-filter"
         onChange={ handleColumnChange }
       >
-        <option value="population">population</option>
-        <option value="orbital_period">orbital_period</option>
-        <option value="diameter">diameter</option>
-        <option value="rotation_period">rotation_period</option>
-        <option value="surface_water">surface_water</option>
+        {COLUMNS.filter((c) => !usedColumns.includes(c)).map((c) => (
+          <option key={ c } value={ c }>{ c }</option>
+        ))}
       </select>
       <select
         value={ comparison }
@@ -102,6 +105,7 @@ function RequisitionApi() {
       <button
         data-testid="button-filter"
         onClick={ handleAddFilter }
+        disabled={ usedColumns.length >= 5 }
       >
         Filtrar
       </button>
