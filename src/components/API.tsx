@@ -55,7 +55,7 @@ function RequisitionApi() {
 
   const handleRemoveFilter = (indexToRemove: number) => {
     const columnToFree = numericFilters[indexToRemove].column;
-    setUsedColumns(usedColumns.filter(column => column !== columnToFree));
+    setUsedColumns(usedColumns.filter((usedColumn) => usedColumn !== columnToFree));
     setNumericFilters(numericFilters.filter((_, index) => index !== indexToRemove));
   };
 
@@ -63,7 +63,7 @@ function RequisitionApi() {
     setNumericFilters([]);
     setUsedColumns([]);
   };
-  
+
   useEffect(() => {
     if (data) {
       let newData = [...data];
@@ -121,15 +121,15 @@ function RequisitionApi() {
         Filtrar
       </button>
       <button
-        onClick={ handleRemoveAllFilters } 
-        data-testid='button-remove-filters'
+        onClick={ handleRemoveAllFilters }
+        data-testid="button-remove-filters"
       >
         Remover todas filtragens
       </button>
 
       {numericFilters.map((filter, index) => (
-        <div key={ index } data-testid='filter'>
-          <p >
+        <div key={ index } data-testid="filter">
+          <p>
             { filter.column }
             { filter.comparison }
             { filter.value }
